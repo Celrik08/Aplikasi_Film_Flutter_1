@@ -19,7 +19,6 @@ class _SearchScreenState extends State<SearchScreen> {
   bool _isSearching = false;
   String _query = '';
   Future<List<Movie>>? _suggestionsFuture;
-  bool _isInHomeSearch = false;
 
   @override
   void initState() {
@@ -59,20 +58,21 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   void _performSearch(String query) {
-    setState(() {
-      _isInHomeSearch = true;
-      _isSearching = false;
-      _searchController.text = query;
-      _suggestionsFuture = ApiService.searchMovies(query);
-    });
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => HomeSearch(query: query),
+      ),
+    );
   }
 
   void _selectSuggestion(String query) {
-    String truncatedQuery = query;
-    if (query.length > 20) {
-      truncatedQuery = query.substring(0, 17) + '...';
-    }
-    _performSearch(truncatedQuery);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => HomeSearch(query: query),
+      ),
+    );
   }
 
   Widget _buildSearchBar() {
@@ -131,7 +131,6 @@ class _SearchScreenState extends State<SearchScreen> {
                   _isSearching = false;
                   _searchController.clear();
                   _query = '';
-                  _isInHomeSearch = false;
                 });
               },
             ),
@@ -176,17 +175,6 @@ class _SearchScreenState extends State<SearchScreen> {
                   }
                 },
               ),
-            ),
-          if (!_isSearching && !_isInHomeSearch)
-            Center(
-              child: Text(
-                'Mulai ketik untuk mencari film',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          if (_isInHomeSearch)
-            Expanded(
-              child: HomeSearch(query: _searchController.text),
             ),
         ],
       ),

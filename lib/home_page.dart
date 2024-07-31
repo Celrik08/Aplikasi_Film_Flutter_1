@@ -104,7 +104,7 @@ class _HomePageState extends State<HomePage> {
         onTap: _onItemTapped, // Method yang akan dipanggil saat tab di-tap
         backgroundColor: Color(0xFF292929), // Warna latar belakang BottomNavigationBar
         selectedItemColor: Colors.white, // Warna item yang dipilih
-        unselectedItemColor: Colors.white70, // Warna item yang tidak dipilih
+        unselectedItemColor: Color(0xFF545454), // Warna item yang tidak dipilih
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
