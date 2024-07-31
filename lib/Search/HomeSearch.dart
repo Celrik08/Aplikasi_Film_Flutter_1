@@ -36,6 +36,7 @@ class _HomeSearchState extends State<HomeSearch> {
         preferredSize: Size.fromHeight(kToolbarHeight + 20),
         child: AppBar(
           backgroundColor: Color(0xFF292929),
+          iconTheme: IconThemeData(color: Colors.white),
           title: Text(
             'Hasil Search',
             style: TextStyle(color: Colors.white),
