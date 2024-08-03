@@ -3,9 +3,13 @@ import 'package:latihan_5/Search/ItemSearch/models_search.dart';
 
 class FilterMenu extends StatelessWidget {
   final List<Movie> suggestions;
-  final Function(String) onSuggestionSelected;
+  final Function(String, String) onSuggestionSelected;
 
   FilterMenu({required this.suggestions, required this.onSuggestionSelected});
+
+  String _truncateTitle(String title, int maxLength) {
+    return title.length > maxLength ? '${title.substring(0, maxLength)}...' : title;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,8 +21,8 @@ class FilterMenu extends StatelessWidget {
           tileColor: Color(0xFF444444),
           title: Row(
             children: [
-              Icon(Icons.search,color: Colors.white), // Tempatkan ikon di sini
-              SizedBox(width: 8), // Tambahkan spasi antara ikon dan teks
+              Icon(Icons.search, color: Colors.white),
+              SizedBox(width: 8),
               Expanded(
                 child: Text(
                   movie.title,
@@ -28,7 +32,10 @@ class FilterMenu extends StatelessWidget {
               ),
             ],
           ),
-          onTap: () => onSuggestionSelected(movie.title),
+          onTap: () {
+            String truncatedTitle = _truncateTitle(movie.title, 20);
+            onSuggestionSelected(truncatedTitle, movie.title);
+          },
         );
       },
     );

@@ -19,6 +19,8 @@ class _SearchScreenState extends State<SearchScreen> {
   bool _isSearching = false;
   String _query = '';
   Future<List<Movie>>? _suggestionsFuture;
+  bool _showHomeSearch = false;
+  String? _fullTitle;
 
   @override
   void initState() {
@@ -27,7 +29,7 @@ class _SearchScreenState extends State<SearchScreen> {
     _focusNode = FocusNode();
 
     if (widget.autoFocus) {
-      WidgetsBinding.instance!.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         FocusScope.of(context).requestFocus(_focusNode);
       });
     }
@@ -39,12 +41,14 @@ class _SearchScreenState extends State<SearchScreen> {
           _isSearching = true;
           _query = query;
           _suggestionsFuture = ApiService.searchMovies(query);
+          _showHomeSearch = false; // Show suggestions if there's a query
         });
       } else {
         setState(() {
           _isSearching = false;
           _query = '';
           _suggestionsFuture = null;
+          _showHomeSearch = false; // Hide HomeSearch if query is cleared
         });
       }
     });
@@ -58,21 +62,31 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   void _performSearch(String query) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => HomeSearch(query: query),
-      ),
-    );
+    setState(() {
+      _fullTitle = query;
+      _query = query;
+      _showHomeSearch = true;
+    });
   }
 
-  void _selectSuggestion(String query) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => HomeSearch(query: query),
-      ),
-    );
+  void _selectSuggestion(String truncatedTitle, String fullTitle) {
+    setState(() {
+      _searchController.text = truncatedTitle;
+      _fullTitle = fullTitle;
+      _query = fullTitle;
+      _showHomeSearch = true;
+    });
+  }
+
+  void _clearSearch() {
+    setState(() {
+      _searchController.clear();
+      _showHomeSearch = false;
+      _isSearching = false;
+      _query = '';
+      _fullTitle = null;
+      _suggestionsFuture = null;
+    });
   }
 
   Widget _buildSearchBar() {
@@ -84,21 +98,14 @@ class _SearchScreenState extends State<SearchScreen> {
           padding: EdgeInsets.all(5),
           decoration: BoxDecoration(
             color: Colors.white,
-            border: Border.all(
-              color: Colors.white,
-              width: 2,
-            ),
+            border: Border.all(color: Colors.white, width: 2),
             borderRadius: BorderRadius.circular(100),
           ),
           child: Row(
             children: [
               Padding(
                 padding: const EdgeInsets.only(left: 8.0, right: 8.0),
-                child: Icon(
-                  Icons.search,
-                  size: 20,
-                  color: Colors.black,
-                ),
+                child: Icon(Icons.search, size: 20, color: Colors.black),
               ),
               Expanded(
                 child: Padding(
@@ -126,13 +133,7 @@ class _SearchScreenState extends State<SearchScreen> {
             right: 3,
             child: IconButton(
               icon: Icon(Icons.close, color: Colors.black54),
-              onPressed: () {
-                setState(() {
-                  _isSearching = false;
-                  _searchController.clear();
-                  _query = '';
-                });
-              },
+              onPressed: _clearSearch,
             ),
           ),
       ],
@@ -152,7 +153,9 @@ class _SearchScreenState extends State<SearchScreen> {
       ),
       body: Column(
         children: [
-          if (_isSearching && _suggestionsFuture != null)
+          if (_showHomeSearch && _fullTitle != null)
+            Expanded(child: HomeSearch(query: _fullTitle!))
+          else if (_isSearching && _suggestionsFuture != null)
             Expanded(
               child: FutureBuilder<List<Movie>>(
                 future: _suggestionsFuture,
@@ -160,13 +163,9 @@ class _SearchScreenState extends State<SearchScreen> {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
-                    return Center(
-                        child: Text('Error: ${snapshot.error}',
-                            style: TextStyle(color: Colors.white)));
+                    return Center(child: Text('Error: ${snapshot.error}', style: TextStyle(color: Colors.white)));
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return Center(
-                        child: Text('Tidak ada film yang ditemukan',
-                            style: TextStyle(color: Colors.white)));
+                    return Center(child: Text('Tidak ada film yang ditemukan', style: TextStyle(color: Colors.white)));
                   } else {
                     return FilterMenu(
                       suggestions: snapshot.data!,
