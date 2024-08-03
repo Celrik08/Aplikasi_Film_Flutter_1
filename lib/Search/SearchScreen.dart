@@ -21,6 +21,7 @@ class _SearchScreenState extends State<SearchScreen> {
   Future<List<Movie>>? _suggestionsFuture;
   bool _showHomeSearch = false;
   String? _fullTitle;
+  bool _isTruncated = true;
 
   @override
   void initState() {
@@ -41,14 +42,14 @@ class _SearchScreenState extends State<SearchScreen> {
           _isSearching = true;
           _query = query;
           _suggestionsFuture = ApiService.searchMovies(query);
-          _showHomeSearch = false; // Show suggestions if there's a query
+          _showHomeSearch = false;
         });
       } else {
         setState(() {
           _isSearching = false;
           _query = '';
           _suggestionsFuture = null;
-          _showHomeSearch = false; // Hide HomeSearch if query is cleared
+          _showHomeSearch = false;
         });
       }
     });
@@ -66,6 +67,7 @@ class _SearchScreenState extends State<SearchScreen> {
       _fullTitle = query;
       _query = query;
       _showHomeSearch = true;
+      _isTruncated = true;
     });
   }
 
@@ -75,6 +77,7 @@ class _SearchScreenState extends State<SearchScreen> {
       _fullTitle = fullTitle;
       _query = fullTitle;
       _showHomeSearch = true;
+      _isTruncated = true;
     });
   }
 
@@ -85,58 +88,80 @@ class _SearchScreenState extends State<SearchScreen> {
       _isSearching = false;
       _query = '';
       _fullTitle = null;
+      _isTruncated = true;
       _suggestionsFuture = null;
     });
   }
 
+  void _toggleTruncate() {
+    setState(() {
+      _isTruncated = !_isTruncated;
+      if (_isTruncated && _fullTitle != null) {
+        _searchController.text = _truncateTitle(_fullTitle!, 20);
+      } else {
+        _searchController.text = _fullTitle ?? '';
+      }
+    });
+  }
+
+  String _truncateTitle(String title, int maxLength) {
+    return title.length > maxLength ? '${title.substring(0, maxLength)}...' : title;
+  }
+
   Widget _buildSearchBar() {
-    return Stack(
-      children: [
-        Container(
-          width: 270,
-          height: 40,
-          padding: EdgeInsets.all(5),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border.all(color: Colors.white, width: 2),
-            borderRadius: BorderRadius.circular(100),
-          ),
-          child: Row(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 8.0, right: 8.0),
-                child: Icon(Icons.search, size: 20, color: Colors.black),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 4.0, right: 10.0),
-                  child: TextField(
-                    controller: _searchController,
-                    focusNode: _focusNode,
-                    textInputAction: TextInputAction.search,
-                    onSubmitted: (value) => _performSearch(value),
-                    style: TextStyle(color: Colors.black),
-                    decoration: InputDecoration(
-                      hintText: 'Cari film...',
-                      hintStyle: TextStyle(color: Colors.black54),
-                      border: InputBorder.none,
+    return GestureDetector(
+      onTap: _toggleTruncate,
+      child: Stack(
+        children: [
+          Container(
+            width: 270,
+            height: 40,
+            padding: EdgeInsets.all(5),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border.all(color: Colors.white, width: 2),
+              borderRadius: BorderRadius.circular(100),
+            ),
+            child: Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+                  child: Icon(Icons.search, size: 20, color: Colors.black),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 4.0, right: 10.0),
+                    child: TextField(
+                      controller: _searchController,
+                      focusNode: _focusNode,
+                      textInputAction: TextInputAction.search,
+                      onSubmitted: (value) => _performSearch(value),
+                      style: TextStyle(color: Colors.black),
+                      decoration: InputDecoration(
+                        hintText: 'Cari film...',
+                        hintStyle: TextStyle(color: Colors.black54),
+                        border: InputBorder.none,
+                      ),
+                      readOnly: _showHomeSearch,
+                      maxLines: 1,
+                      textAlign: TextAlign.start,
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        ),
-        if (_isSearching)
-          Positioned(
-            top: -4,
-            right: 3,
-            child: IconButton(
-              icon: Icon(Icons.close, color: Colors.black54),
-              onPressed: _clearSearch,
+              ],
             ),
           ),
-      ],
+          if (_isSearching)
+            Positioned(
+              top: -4,
+              right: 3,
+              child: IconButton(
+                icon: Icon(Icons.close, color: Colors.black54),
+                onPressed: _clearSearch,
+              ),
+            ),
+        ],
+      ),
     );
   }
 
@@ -154,7 +179,9 @@ class _SearchScreenState extends State<SearchScreen> {
       body: Column(
         children: [
           if (_showHomeSearch && _fullTitle != null)
-            Expanded(child: HomeSearch(query: _fullTitle!))
+            Expanded(
+              child: HomeSearch(query: _fullTitle!),
+            )
           else if (_isSearching && _suggestionsFuture != null)
             Expanded(
               child: FutureBuilder<List<Movie>>(
@@ -169,7 +196,10 @@ class _SearchScreenState extends State<SearchScreen> {
                   } else {
                     return FilterMenu(
                       suggestions: snapshot.data!,
-                      onSuggestionSelected: _selectSuggestion,
+                      onSuggestionSelected: (truncatedTitle, fullTitle) {
+                        String displayTitle = _truncateTitle(fullTitle, 20);
+                        _selectSuggestion(displayTitle, fullTitle);
+                      },
                     );
                   }
                 },

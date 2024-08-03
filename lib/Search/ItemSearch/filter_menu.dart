@@ -7,10 +7,6 @@ class FilterMenu extends StatelessWidget {
 
   FilterMenu({required this.suggestions, required this.onSuggestionSelected});
 
-  String _truncateTitle(String title, int maxLength) {
-    return title.length > maxLength ? '${title.substring(0, maxLength)}...' : title;
-  }
-
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
@@ -27,14 +23,13 @@ class FilterMenu extends StatelessWidget {
                 child: Text(
                   movie.title,
                   style: TextStyle(color: Colors.white),
-                  overflow: TextOverflow.ellipsis,
+                  overflow: TextOverflow.clip, // Tidak memotong judul
                 ),
               ),
             ],
           ),
           onTap: () {
-            String truncatedTitle = _truncateTitle(movie.title, 20);
-            onSuggestionSelected(truncatedTitle, movie.title);
+            onSuggestionSelected(movie.title, movie.title);
           },
         );
       },
