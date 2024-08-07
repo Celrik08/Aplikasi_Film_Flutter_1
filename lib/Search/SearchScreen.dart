@@ -39,21 +39,19 @@ class _SearchScreenState extends State<SearchScreen> {
 
     _searchController.addListener(() {
       final query = _searchController.text.trim();
-      if (query.isNotEmpty) {
-        setState(() {
+      setState(() {
+        if (query.isNotEmpty) {
           _isSearching = true;
           _query = query;
           _suggestionsFuture = ApiService.searchMovies(query);
           _showHomeSearch = false;
-        });
-      } else {
-        setState(() {
+        } else {
           _isSearching = false;
           _query = '';
           _suggestionsFuture = null;
           _showHomeSearch = false;
-        });
-      }
+        }
+      });
     });
 
     _genresFuture = ApiService.getGenres(); // Mengambil genre saat layar diinisialisasi
@@ -170,7 +168,7 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _buildGenreChips(List<Genre> genres) {
-    return Container(
+    return _isSearching ? Container() : Container(
       padding: EdgeInsets.symmetric(vertical: 8.0),
       height: 50.0,
       child: ListView.builder(
@@ -204,7 +202,7 @@ class _SearchScreenState extends State<SearchScreen> {
             future: _genresFuture,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
+                return Container(); // Jangan tampilkan CircularProgressIndicator di sini
               } else if (snapshot.hasError) {
                 return Center(child: Text('Error: ${snapshot.error}', style: TextStyle(color: Colors.white)));
               } else if (snapshot.hasData) {
