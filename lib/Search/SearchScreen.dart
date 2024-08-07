@@ -3,6 +3,7 @@ import 'package:latihan_5/Search/HomeSearch.dart';
 import 'package:latihan_5/Search/ItemSearch/api_service.dart';
 import 'package:latihan_5/Search/ItemSearch/models_search.dart';
 import 'package:latihan_5/Search/ItemSearch/filter_menu.dart';
+import 'package:latihan_5/Search/ItemSearch/genre/search_card.dart';
 
 class SearchScreen extends StatefulWidget {
   final bool autoFocus;
@@ -19,6 +20,7 @@ class _SearchScreenState extends State<SearchScreen> {
   bool _isSearching = false;
   String _query = '';
   Future<List<Movie>>? _suggestionsFuture;
+  Future<List<Genre>>? _genresFuture;
   bool _showHomeSearch = false;
   String? _fullTitle;
   bool _isTruncated = true;
@@ -53,6 +55,8 @@ class _SearchScreenState extends State<SearchScreen> {
         });
       }
     });
+
+    _genresFuture = ApiService.getGenres(); // Mengambil genre saat layar diinisialisasi
   }
 
   @override
@@ -165,9 +169,27 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
+  Widget _buildGenreChips(List<Genre> genres) {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 8.0),
+      height: 50.0,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: genres.length,
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            child: CardGenre(genre: genres[index]), // Menggunakan CardGenre
+          );
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xFF121212), // Mengatur background warna
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(kToolbarHeight + 20),
         child: AppBar(
@@ -178,6 +200,20 @@ class _SearchScreenState extends State<SearchScreen> {
       ),
       body: Column(
         children: [
+          FutureBuilder<List<Genre>>(
+            future: _genresFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}', style: TextStyle(color: Colors.white)));
+              } else if (snapshot.hasData) {
+                return _buildGenreChips(snapshot.data!);
+              } else {
+                return Container();
+              }
+            },
+          ),
           if (_showHomeSearch && _fullTitle != null)
             Expanded(
               child: HomeSearch(query: _fullTitle!),
@@ -191,9 +227,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     return Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
                     return Center(child: Text('Error: ${snapshot.error}', style: TextStyle(color: Colors.white)));
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return Center(child: Text('Tidak ada film yang ditemukan', style: TextStyle(color: Colors.white)));
-                  } else {
+                  } else if (snapshot.hasData) {
                     return FilterMenu(
                       suggestions: snapshot.data!,
                       onSuggestionSelected: (truncatedTitle, fullTitle) {
@@ -201,6 +235,8 @@ class _SearchScreenState extends State<SearchScreen> {
                         _selectSuggestion(displayTitle, fullTitle);
                       },
                     );
+                  } else {
+                    return Center(child: Text('Tidak ada hasil', style: TextStyle(color: Colors.white)));
                   }
                 },
               ),

@@ -51,6 +51,23 @@ class ApiService {
     }
   }
 
+  static Future<List<Genre>> getGenres() async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/genre/movie/list?api_key=$apiKey&language=en-US'),
+      headers: {
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final jsonResponse = json.decode(response.body);
+      final List<dynamic> genresJson = jsonResponse['genres'];
+      return genresJson.map((genreJson) => Genre.fromJson(genreJson)).toList();
+    } else {
+      throw Exception('Gagal memuat genre');
+    }
+  }
+
   static Future<List<Movie>> searchMovies1(String query) async {
     final response = await http.get(
       Uri.parse('$baseUrl/search/movie?query=$query&api_key=$apiKey'),
