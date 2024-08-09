@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'models_search.dart';
+import 'package:latihan_5/Search/ItemSearch/models_search.dart';
 
-class SearchCard extends StatelessWidget {
+class SearchGenre extends StatelessWidget {
   final Movie movie;
 
-  SearchCard({required this.movie});
+  SearchGenre({required this.movie});
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +41,7 @@ class SearchCard extends StatelessWidget {
                     style: TextStyle(
                       color: Colors.white,
                     ),
-                  )
+                  ),
                 ],
               ),
             ),

@@ -73,9 +73,9 @@ class _SearchScreenState extends State<SearchScreen> {
     });
   }
 
-  void _selectSuggestion(String truncatedTitle, String fullTitle) {
+  void _selectSuggestion(String fullTitle, String type) {
     setState(() {
-      _searchController.text = truncatedTitle;
+      _searchController.text = _truncateTitle(fullTitle, 20);
       _fullTitle = fullTitle;
       _query = fullTitle;
       _showHomeSearch = true;
@@ -110,6 +110,15 @@ class _SearchScreenState extends State<SearchScreen> {
     return title.length > maxLength ? '${title.substring(0, maxLength)}...' : title;
   }
 
+  void _onGenreSelected(Genre genre) {
+    setState(() {
+      _searchController.text = _truncateTitle(genre.name, 20);
+      _fullTitle = genre.name;
+      _query = genre.name;
+      _showHomeSearch = true;
+    });
+  }
+
   Widget _buildSearchBar() {
     return GestureDetector(
       onTap: _toggleTruncate,
@@ -137,7 +146,9 @@ class _SearchScreenState extends State<SearchScreen> {
                       controller: _searchController,
                       focusNode: _focusNode,
                       textInputAction: TextInputAction.search,
-                      onSubmitted: (value) => _performSearch(value),
+                      onSubmitted: (value) {
+                        _performSearch(_fullTitle ?? value);
+                      },
                       style: TextStyle(color: Colors.black),
                       decoration: InputDecoration(
                         hintText: 'Cari film...',
@@ -177,7 +188,10 @@ class _SearchScreenState extends State<SearchScreen> {
         itemBuilder: (context, index) {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4.0),
-            child: CardGenre(genre: genres[index]), // Menggunakan CardGenre
+            child: GestureDetector(
+              onTap: () => _onGenreSelected(genres[index]),
+              child: CardGenre(genre: genres[index]), // Menggunakan CardGenre
+            ),
           );
         },
       ),
@@ -214,7 +228,7 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
           if (_showHomeSearch && _fullTitle != null)
             Expanded(
-              child: HomeSearch(query: _fullTitle!),
+              child: HomeSearch(query: _query), // Pass the query to HomeSearch
             )
           else if (_isSearching && _suggestionsFuture != null)
             Expanded(
@@ -226,15 +240,13 @@ class _SearchScreenState extends State<SearchScreen> {
                   } else if (snapshot.hasError) {
                     return Center(child: Text('Error: ${snapshot.error}', style: TextStyle(color: Colors.white)));
                   } else if (snapshot.hasData) {
-                    return FilterMenu(
-                      suggestions: snapshot.data!,
-                      onSuggestionSelected: (truncatedTitle, fullTitle) {
-                        String displayTitle = _truncateTitle(fullTitle, 20);
-                        _selectSuggestion(displayTitle, fullTitle);
-                      },
+                    final movies = snapshot.data!;
+                    return FilterMenu( // Menggunakan FilterMenu
+                      suggestions: movies,
+                      onSuggestionSelected: (fullTitle, type) => _selectSuggestion(fullTitle, type),
                     );
                   } else {
-                    return Center(child: Text('Tidak ada hasil', style: TextStyle(color: Colors.white)));
+                    return Center(child: Text('No results found', style: TextStyle(color: Colors.white)));
                   }
                 },
               ),

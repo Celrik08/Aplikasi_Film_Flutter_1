@@ -9,30 +9,21 @@ class FilterMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: suggestions.length,
-      itemBuilder: (context, index) {
-        final movie = suggestions[index];
-        return ListTile(
-          tileColor: Color(0xFF444444),
-          title: Row(
-            children: [
-              Icon(Icons.search, color: Colors.white),
-              SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  movie.title,
-                  style: TextStyle(color: Colors.white),
-                  overflow: TextOverflow.clip, // Tidak memotong judul
-                ),
-              ),
-            ],
-          ),
-          onTap: () {
-            onSuggestionSelected(movie.title, movie.title);
-          },
-        );
-      },
+    return Container(
+      color: Color(0xFF545454), // Mengatur warna latar belakang
+      child: ListView.builder(
+        itemCount: suggestions.length,
+        itemBuilder: (context, index) {
+          final movie = suggestions[index];
+          return ListTile(
+            title: Text(
+              movie.title,
+              style: TextStyle(color: Colors.white), // Mengatur warna teks
+            ),
+            onTap: () => onSuggestionSelected(movie.title, 'movie'),
+          );
+        },
+      ),
     );
   }
 }

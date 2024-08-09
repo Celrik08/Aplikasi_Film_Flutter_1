@@ -7,6 +7,27 @@ class ApiService {
   static const String accessToken = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIwOWJjY2UwYzAxZTlhOTZkOTMwZjEwYmUzYzFiNWQ0ZSIsIm5iZiI6MTcyMTA5ODI4MC4yMDI0MjMsInN1YiI6IjY1ZDMwMGJkNzYxNDIxMDE3Y2ZmYzI1YyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.g-zJiUOUjVaj2MnTMJadMV0aMdIEXgamxTv30SOGZUg';
   static const String baseUrl = 'https://api.themoviedb.org/3';
 
+  static Future<List<Movie>> searchMoviesByGenre(int genreId) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/discover/movie?api_key=$apiKey&with_genres=$genreId'),
+      headers: {
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final jsonResponse = json.decode(response.body);
+      final List<dynamic>? results = jsonResponse['results'] as List<dynamic>?;
+      if (results != null) {
+        return results.map((movieData) => Movie.fromJson(movieData)).toList();
+      } else {
+        return [];
+      }
+    } else {
+      throw Exception('Gagal memuat film');
+    }
+  }
+
   static Future<List<Movie>> searchMovies(String query) async {
     final response = await http.get(
       Uri.parse('$baseUrl/search/movie?api_key=$apiKey&query=$query'),
