@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:latihan_5/Search/HomeSearch.dart';
 import 'package:latihan_5/Search/ItemSearch/api_service.dart';
+import 'package:latihan_5/Search/ItemSearch/genre/HomeGenre.dart';
 import 'package:latihan_5/Search/ItemSearch/models_search.dart';
 import 'package:latihan_5/Search/ItemSearch/filter_menu.dart';
 import 'package:latihan_5/Search/ItemSearch/genre/search_card.dart';
@@ -111,11 +112,16 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   void _onGenreSelected(Genre genre) {
-    setState(() {
-      _searchController.text = _truncateTitle(genre.name, 20);
-      _fullTitle = genre.name;
-      _query = genre.name;
-      _showHomeSearch = true;
+    _genresFuture?.then((allGenres) { // Mengguunakan _genresFuture yang benar
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HomeGenre(
+            genre: genre, // Menggunakan parameter genre yang benar
+            allGenres: allGenres, // Berikan semua genre ke HomeGenre
+          ),
+        ),
+      );
     });
   }
 
@@ -179,18 +185,20 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _buildGenreChips(List<Genre> genres) {
-    return _isSearching ? Container() : Container(
-      padding: EdgeInsets.symmetric(vertical: 8.0),
-      height: 50.0,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: genres.length,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4.0),
-            child: GestureDetector(
-              onTap: () => _onGenreSelected(genres[index]),
-              child: CardGenre(genre: genres[index]), // Menggunakan CardGenre
+    return _isSearching
+        ? Container()
+        : Container(
+            padding: EdgeInsets.symmetric(vertical: 8.0),
+            height: 50.0,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: genres.length,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 0),
+                  child: GestureDetector(
+                    onTap: () => _onGenreSelected(genres[index]), // Navigasi ke HomeGenre
+                    child: CardGenre(genre: genres[index]), // Menggunakan CardGenre
             ),
           );
         },

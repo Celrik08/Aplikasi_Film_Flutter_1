@@ -18,8 +18,15 @@ class ApiService {
     if (response.statusCode == 200) {
       final jsonResponse = json.decode(response.body);
       final List<dynamic>? results = jsonResponse['results'] as List<dynamic>?;
+
       if (results != null) {
-        return results.map((movieData) => Movie.fromJson(movieData)).toList();
+        List<Movie> movies = [];
+        for (var movieData in results) {
+          Movie movie = Movie.fromJson(movieData);
+          movie = await getMovieDetails(movie.id); // Dapatkan detail lengkap
+          movies.add(movie);
+        }
+        return movies;
       } else {
         return [];
       }

@@ -8,25 +8,25 @@ class CardGenre extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 170,  // Lebar card yang diinginkan
-      height: 50,  // Tinggi card yang diinginkan
-      child: Card(
-        color: Color(0xFF545454),
-        child: Padding(
-          padding: const EdgeInsets.all(0), // Padding di dalam card
-          child: Center(
-            child: Text(
-              genre.name,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16.0,
+    return IntrinsicWidth( // Sesuaikan lebar dengan konten
+      child: IntrinsicWidth( // Sesuaikan tinggi dengan konten
+       child: Card(
+          color: Color(0xFF545454),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 0), // Padding di dalam card
+            child: Center(
+              child: Text(
+                genre.name,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16.0,
+                ),
+                textAlign: TextAlign.center, // Memastikan teks di-center
               ),
-              textAlign: TextAlign.center, // Memastikan teks di-center
             ),
           ),
         ),
-      ),
+      )
     );
   }
 }

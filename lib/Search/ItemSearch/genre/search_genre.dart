@@ -3,11 +3,24 @@ import 'package:latihan_5/Search/ItemSearch/models_search.dart';
 
 class SearchGenre extends StatelessWidget {
   final Movie movie;
+  final List<Genre> orderGenres;
 
-  SearchGenre({required this.movie});
+  SearchGenre({required this.movie, required this.orderGenres});
 
   @override
   Widget build(BuildContext context) {
+    // Filter genre untuk hanya menampilkan yang ada di film
+    List<Genre> movieGenres = movie.genres;
+
+    // Temukan genre yang dipilih oleh pengguna dan pindahkan ke depan
+    List<Genre> orderedMovieGenres = [
+      ...orderGenres.where((g) => movieGenres.any((mg) => mg.id == g.id)),
+      ...movieGenres.where((mg) => !orderGenres.any((g) => g.id == mg.id))
+    ];
+
+    // Buat teks untuk menampilkan genre
+    String genreText = orderedMovieGenres.map((g) => g.name).join(', ');
+
     return Card(
       color: Color(0xFF545454),
       margin: EdgeInsets.all(3.0),
@@ -37,7 +50,7 @@ class SearchGenre extends StatelessWidget {
                   ),
                   SizedBox(height: 4),
                   Text(
-                    movie.genres.map((genre) => genre.name).join(', '),
+                    genreText,
                     style: TextStyle(
                       color: Colors.white,
                     ),
