@@ -14,7 +14,7 @@ Aplikasi film ini dibangun dengan :
 - [Android Studio](https://developer.android.com/studio?hl=id)-Aplikasi film dibangun dengan IDE Android Studio, dan di Android Studio saya membuat aplikasi film ini
 - [Flutter Freamwork](https://docs.flutter.dev/get-started/codelab)-Flutter Freamwork saya menggunakan untuk membuat aplikasi yang berbahasa pemrograman dart
 - [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-- Penjelasan tentang syntak dart ada di source code
+- Penjelasan tentang syntak dart ada di source code commentar
 - [TMDB](https://developer.themoviedb.org/reference)-Saya menggunakan API TMDB
 - [Postman](https://www.postman.com/)-Saya menggunakan Postman untuk mentesting API
 
