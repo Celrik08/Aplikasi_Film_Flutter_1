@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:latihan_5/DetailFilms/ApiDetailFilms/api_service.dart';
 import 'package:latihan_5/DetailFilms/ApiDetailFilms/models.dart';
 
-
 class DetailFilm extends StatefulWidget {
   final int movieId;
 
@@ -27,19 +26,21 @@ class _DetailFilmState extends State<DetailFilm> {
       appBar: AppBar(
         title: Text('Detail Film'),
       ),
-      body: SingleChildScrollView(
-        child: FutureBuilder<MovieDetail>(
-          future: futureMovieDetail,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
-            } else if (!snapshot.hasData) {
-              return Center(child: Text('Tidak ada detail yang ditemukan'));
-            } else {
-              final movieDetail = snapshot.data!;
-              return Padding(
+      body: FutureBuilder<MovieDetail>(
+        future: futureMovieDetail,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData) {
+            return Center(child: Text('Tidak ada detail yang ditemukan'));
+          } else {
+            final movieDetail = snapshot.data!;
+            return SingleChildScrollView(
+              child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -66,12 +67,12 @@ class _DetailFilmState extends State<DetailFilm> {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              SizedBox(height: 8),
+                              SizedBox(height: 1),
                               Text(
                                 movieDetail.releaseDate,
                                 style: TextStyle(fontSize: 15),
                               ),
-                              SizedBox(height: 8),
+                              SizedBox(height: 1),
                               Text(
                                 movieDetail.genres.map((genre) => genre.name).join(', '),
                                 style: TextStyle(fontSize: 15),
@@ -93,27 +94,55 @@ class _DetailFilmState extends State<DetailFilm> {
                     SizedBox(height: 8),
                     Text(movieDetail.overview),
                     SizedBox(height: 16),
-                    // Produser, Director, Writer sections
+                    // Produser section
                     Text('Produser:', style: TextStyle(fontWeight: FontWeight.bold)),
-                    ...movieDetail.producers.map((producer) => Text(producer.name)).toList(),
+                    movieDetail.producers.isNotEmpty
+                        ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: movieDetail.producers
+                          .map((producer) => Text(producer.name))
+                          .toList(),
+                    )
+                        : Text('-'),
                     SizedBox(height: 16),
+                    // Director section
                     Text('Director:', style: TextStyle(fontWeight: FontWeight.bold)),
-                    ...movieDetail.directors.map((director) => Text(director.name)).toList(),
+                    movieDetail.directors.isNotEmpty
+                        ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: movieDetail.directors
+                          .map((director) => Text(director.name))
+                          .toList(),
+                    )
+                        : Text('-'),
                     SizedBox(height: 16),
+                    // Writer section
                     Text('Writer:', style: TextStyle(fontWeight: FontWeight.bold)),
-                    ...movieDetail.writers.map((writer) => Text(writer.name)).toList(),
+                    movieDetail.writers.isNotEmpty
+                        ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: movieDetail.writers
+                          .map((writer) => Text(writer.name))
+                          .toList(),
+                    )
+                        : Text('-'),
                     SizedBox(height: 16),
                     // Production Companies section
                     Text('Production Companies:', style: TextStyle(fontWeight: FontWeight.bold)),
-                    ...movieDetail.productionCompanies
-                        .map((company) => Text(company.name))
-                        .toList(),
+                    movieDetail.productionCompanies.isNotEmpty
+                        ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: movieDetail.productionCompanies
+                          .map((company) => Text(company.name))
+                          .toList(),
+                    )
+                        : Text('-'),
                   ],
                 ),
-              );
-            }
-          },
-        ),
+              ),
+            );
+          }
+        },
       ),
     );
   }
