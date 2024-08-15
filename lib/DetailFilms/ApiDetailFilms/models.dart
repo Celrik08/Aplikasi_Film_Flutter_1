@@ -53,7 +53,8 @@ class MovieDetail {
   final List<Cast> producers;
   final List<Cast> directors;
   final List<Cast> writers;
-  final List<ProductionCompany> productionCompanies; // Tambahkan ini
+  final List<ProductionCompany> productionCompanies;
+  final String backdropPath; // Tambahkan field ini
 
   MovieDetail({
     required this.title,
@@ -64,7 +65,8 @@ class MovieDetail {
     required this.producers,
     required this.directors,
     required this.writers,
-    required this.productionCompanies, // Tambahkan ini
+    required this.productionCompanies,
+    required this.backdropPath, // Tambahkan field ini
   });
 
   factory MovieDetail.fromJson(Map<String, dynamic> json) {
@@ -82,6 +84,7 @@ class MovieDetail {
       productionCompanies: (json['production_companies'] as List)
           .map((companyJson) => ProductionCompany.fromJson(companyJson))
           .toList(),
+      backdropPath: json['backdrop_path'], // Tambahkan field ini
     );
   }
 
@@ -90,6 +93,7 @@ class MovieDetail {
     List<Cast>? directors,
     List<Cast>? writers,
     List<ProductionCompany>? productionCompanies,
+    String? backdropPath, // Tambahkan field ini
   }) {
     return MovieDetail(
       title: this.title,
@@ -101,6 +105,7 @@ class MovieDetail {
       directors: directors ?? this.directors,
       writers: writers ?? this.writers,
       productionCompanies: productionCompanies ?? this.productionCompanies,
+      backdropPath: backdropPath ?? this.backdropPath, // Tambahkan field ini
     );
   }
 }
