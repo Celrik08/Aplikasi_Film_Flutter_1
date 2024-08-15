@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:latihan_5/ApiNowPlaying/api_service.dart';
-import 'package:latihan_5/ApiNowPlaying/models.dart';
-import 'package:latihan_5/ApiNowPlaying/movie_card.dart';
+import 'package:latihan_5/APIMovies/ApiNowPlaying/api_service.dart';
+import 'package:latihan_5/APIMovies/ApiNowPlaying/models.dart';
+import 'package:latihan_5/APIMovies/ApiNowPlaying/movie_card.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
