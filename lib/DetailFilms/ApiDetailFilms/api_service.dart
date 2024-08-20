@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'models.dart';
+import 'package:latihan_5/DetailFilms/VideoTrailer/models.dart';
 
 class ApiService {
   static final String baseUrl = 'https://api.themoviedb.org/3';
@@ -53,6 +54,26 @@ class ApiService {
       }
     } else {
       throw Exception('Gagal memuat detail film');
+    }
+  }
+
+  static Future<List<MovieVideo>> fetchMovieVideos(int movieId) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/movie/$movieId/videos?api_key=$apiKey&language=en-US'),
+      headers: {
+        'Authorization': accessToken,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final videosJson = jsonDecode(response.body);
+      final videoList = (videosJson['results'] as List)
+          .map((videoJson) => MovieVideo.fromJson(videoJson))
+          .toList();
+
+      return videoList;
+    } else {
+      throw Exception('Gagal memuat video trailer');
     }
   }
 }
