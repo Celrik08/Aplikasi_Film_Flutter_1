@@ -3,6 +3,8 @@ import 'package:latihan_5/DetailFilms/ApiDetailFilms/api_service.dart';
 import 'package:latihan_5/DetailFilms/ApiDetailFilms/models.dart';
 import 'package:latihan_5/DetailFilms/VideoTrailer/TrailerYotube.dart';
 import 'package:latihan_5/DetailFilms/VideoTrailer/models.dart';
+import 'package:latihan_5/DetailFilms/People/card_people.dart';
+import 'package:latihan_5/DetailFilms/People/Detail_Crew.dart';
 
 class DetailFilm extends StatefulWidget {
   final int movieId;
@@ -27,7 +29,7 @@ class _DetailFilmState extends State<DetailFilm> {
 
   void _showTrailerDialog(String videoKey) {
     setState(() {
-      _isVideoPlaying = true; // Set state when video starts playing
+      _isVideoPlaying = true;
     });
 
     showDialog(
@@ -36,19 +38,17 @@ class _DetailFilmState extends State<DetailFilm> {
       builder: (BuildContext context) {
         return GestureDetector(
           onTap: () {
-            Navigator.of(context).pop(); // Close the dialog
+            Navigator.of(context).pop();
             setState(() {
-              _isVideoPlaying = false; // Set state when dialog is closed
+              _isVideoPlaying = false;
             });
           },
           child: Scaffold(
             backgroundColor: Colors.transparent,
             body: GestureDetector(
-              onTap: () {}, // Prevent closing the dialog when tapping inside the container
+              onTap: () {},
               child: Center(
-                child: TrailerYouTube(
-                  videoKey: videoKey,
-                ),
+                child: TrailerYouTube(videoKey: videoKey),
               ),
             ),
           ),
@@ -66,7 +66,7 @@ class _DetailFilmState extends State<DetailFilm> {
         elevation: 0,
         iconTheme: IconThemeData(color: Colors.white),
       ),
-      backgroundColor: Color(0xFF545454),
+      backgroundColor: Color(0xFF292929),
       body: FutureBuilder<MovieDetail>(
         future: futureMovieDetail,
         builder: (context, snapshot) {
@@ -84,11 +84,10 @@ class _DetailFilmState extends State<DetailFilm> {
             );
           } else {
             final movieDetail = snapshot.data!;
-            return SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  FutureBuilder<List<MovieVideo>>(
+            return CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(
+                  child: FutureBuilder<List<MovieVideo>>(
                     future: futureMovieVideos,
                     builder: (context, videoSnapshot) {
                       if (videoSnapshot.connectionState == ConnectionState.waiting) {
@@ -96,7 +95,7 @@ class _DetailFilmState extends State<DetailFilm> {
                       } else if (videoSnapshot.hasError || !videoSnapshot.hasData || videoSnapshot.data!.isEmpty) {
                         return Container();
                       } else {
-                        final videoKey = videoSnapshot.data!.first.key; // Get the first video key
+                        final videoKey = videoSnapshot.data!.first.key;
                         return GestureDetector(
                           onTap: () {
                             _showTrailerDialog(videoKey);
@@ -124,112 +123,180 @@ class _DetailFilmState extends State<DetailFilm> {
                       }
                     },
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(height: 10),
-                        Row(
+                ),
+                SliverList(
+                  delegate: SliverChildListDelegate(
+                    [
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Image.network(
-                              'https://image.tmdb.org/t/p/w500${movieDetail.posterPath}',
-                              width: 100,
+                            SizedBox(height: 10),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Image.network(
+                                  'https://image.tmdb.org/t/p/w500${movieDetail.posterPath}',
+                                  width: 100,
+                                ),
+                                SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        movieDetail.title,
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      SizedBox(height: 1),
+                                      Text(
+                                        movieDetail.releaseDate,
+                                        style: TextStyle(fontSize: 15, color: Colors.white),
+                                      ),
+                                      SizedBox(height: 1),
+                                      Text(
+                                        movieDetail.genres.map((genre) => genre.name).join(', '),
+                                        style: TextStyle(fontSize: 15, color: Colors.white),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
-                            SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    movieDetail.title,
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  SizedBox(height: 1),
-                                  Text(
-                                    movieDetail.releaseDate,
-                                    style: TextStyle(fontSize: 15, color: Colors.white),
-                                  ),
-                                  SizedBox(height: 1),
-                                  Text(
-                                    movieDetail.genres.map((genre) => genre.name).join(', '),
-                                    style: TextStyle(fontSize: 15, color: Colors.white),
-                                  ),
-                                ],
+                            SizedBox(height: 16),
+                            Text(
+                              'Overview:',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              movieDetail.overview,
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            SizedBox(height: 16),
+                            Text('Produser:', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                            movieDetail.producers.isNotEmpty
+                                ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: movieDetail.producers
+                                  .map((producer) => Text(producer.name, style: TextStyle(color: Colors.white)))
+                                  .toList(),
+                            )
+                                : Text('-', style: TextStyle(color: Colors.white)),
+                            SizedBox(height: 16),
+                            Text('Director:', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                            movieDetail.directors.isNotEmpty
+                                ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: movieDetail.directors
+                                  .map((director) => Text(director.name, style: TextStyle(color: Colors.white)))
+                                  .toList(),
+                            )
+                                : Text('-', style: TextStyle(color: Colors.white)),
+                            SizedBox(height: 16),
+                            Text('Writer:', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                            movieDetail.writers.isNotEmpty
+                                ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: movieDetail.writers
+                                  .map((writer) => Text(writer.name, style: TextStyle(color: Colors.white)))
+                                  .toList(),
+                            )
+                                : Text('-', style: TextStyle(color: Colors.white)),
+                            SizedBox(height: 16),
+                            Text('Production Companies:',
+                                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                            movieDetail.productionCompanies.isNotEmpty
+                                ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: movieDetail.productionCompanies
+                                  .map((company) => Text(company.name, style: TextStyle(color: Colors.white)))
+                                  .toList(),
+                            )
+                                : Text('-', style: TextStyle(color: Colors.white)),
+                            // Daftar Cast
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8.0),
+                              child: Text(
+                                'Cast:',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                           ],
                         ),
-                        SizedBox(height: 16),
-                        Text(
-                          'Overview:',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          movieDetail.overview,
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        SizedBox(height: 16),
-                        Text('Produser:', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-                        movieDetail.producers.isNotEmpty
-                            ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: movieDetail.producers
-                              .map((producer) => Text(producer.name, style: TextStyle(color: Colors.white)))
-                              .toList(),
-                        )
-                            : Text('-', style: TextStyle(color: Colors.white)),
-                        SizedBox(height: 16),
-                        Text('Director:', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-                        movieDetail.directors.isNotEmpty
-                            ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: movieDetail.directors
-                              .map((director) => Text(director.name, style: TextStyle(color: Colors.white)))
-                              .toList(),
-                        )
-                            : Text('-', style: TextStyle(color: Colors.white)),
-                        SizedBox(height: 16),
-                        Text('Writer:', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-                        movieDetail.writers.isNotEmpty
-                            ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: movieDetail.writers
-                              .map((writer) => Text(writer.name, style: TextStyle(color: Colors.white)))
-                              .toList(),
-                        )
-                            : Text('-', style: TextStyle(color: Colors.white)),
-                        SizedBox(height: 16),
-                        Text('Production Companies:',
-                            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-                        movieDetail.productionCompanies.isNotEmpty
-                            ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: movieDetail.productionCompanies
-                              .map((company) => Text(company.name, style: TextStyle(color: Colors.white)))
-                              .toList(),
-                        )
-                            : Text('-', style: TextStyle(color: Colors.white)),
-                        // Add padding at the bottom to avoid content being cut off
-                        SizedBox(height: 16),
-                        Padding(
-                          padding: EdgeInsets.only(bottom: 30), // Provide extra space at the bottom
-                        ),
-                      ],
+                      ),
+                    ],
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: Container(
+                    height: 250, // Sesuaikan tinggi sesuai kebutuhan
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: movieDetail.crew2.length > 9 ? 10 : movieDetail.crew2.length,
+                      itemBuilder: (context, index) {
+                        if (index == 9) {
+                          // Tampilkan tombol "View More"
+                          return Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 8.0), // Jarak horizontal dari tombol lain
+                            child: Align(
+                              alignment: Alignment.center,
+                              child: Container(
+                                width: 120, // Sesuaikan lebar tombol
+                                height: 30, // Sesuaikan tinggi tombol
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => DetailCrew(movieId: widget.movieId),
+                                      ),
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.transparent, // Warna latar belakang tombol
+                                    foregroundColor: Colors.white, // Warna teks tombol
+                                    elevation: 0, // Menghilangkan bayangan
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'View More',
+                                        style: TextStyle(fontSize: 12), // Sesuaikan ukuran teks jika diperlukan
+                                      ),
+                                      Icon(
+                                        Icons.arrow_forward,
+                                        size: 12,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        } else {
+                          // Tampilkan kru
+                          return CardPeople(person: movieDetail.crew2[index]);
+                        }
+                      },
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             );
           }
         },

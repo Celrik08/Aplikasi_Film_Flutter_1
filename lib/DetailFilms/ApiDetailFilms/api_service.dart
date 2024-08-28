@@ -11,65 +11,42 @@ class ApiService {
   static Future<MovieDetail> fetchMovieDetail(int movieId) async {
     final response = await http.get(
       Uri.parse('$baseUrl/movie/$movieId?api_key=$apiKey&language=en-US'),
-      headers: {
-        'Authorization' : accessToken,
-      },
+      headers: {'Authorization': accessToken},
     );
 
     if (response.statusCode == 200) {
       final movieDetail = MovieDetail.fromJson(jsonDecode(response.body));
 
-      // Ambil detail kru
-      final crewResponse = await http.get(
+      // Fetch cast and crew details
+      final creditsResponse = await http.get(
         Uri.parse('$baseUrl/movie/$movieId/credits?api_key=$apiKey'),
-        headers: {
-          'Authorization': accessToken,
-        },
+        headers: {'Authorization': accessToken},
       );
 
-      if (crewResponse.statusCode == 200) {
-        final crewJson = jsonDecode(crewResponse.body);
-        final producers = (crewJson['crew'] as List)
-            .where((person) => person['job'] == 'Producer')
-            .map((person) => Cast.fromJson(person))
-            .toList();
+      if (creditsResponse.statusCode == 200) {
+        final creditsJson = jsonDecode(creditsResponse.body);
 
-        final directors = (crewJson['crew'] as List)
-            .where((person) => person['job'] == 'Director')
-            .map((person) => Cast.fromJson(person))
-            .toList();
+        final List<People> cast = (creditsJson['cast'] as List?)?.take(9).map((json) => People.fromJson(json)).toList() ?? [];
+        final List<People> crew = (creditsJson['crew'] as List?)?.map((json) => People.fromJson(json)).toList() ?? [];
 
-        final writers = (crewJson['crew'] as List)
-            .where((person) => person['job'] == 'Writer')
-            .map((person) => Cast.fromJson(person))
-            .toList();
-
-        return movieDetail.copyWith(
-          producers: producers,
-          directors: directors,
-          writers: writers,
-        );
+        return movieDetail.copyWith(castCrew: [...cast, ...crew]);
       } else {
-        throw Exception('Gagal memuat detail kru');
+        throw Exception('Failed to load cast and crew details');
       }
     } else {
-      throw Exception('Gagal memuat detail film');
+      throw Exception('Failed to load movie details');
     }
   }
 
   static Future<List<MovieVideo>> fetchMovieVideos(int movieId) async {
     final response = await http.get(
       Uri.parse('$baseUrl/movie/$movieId/videos?api_key=$apiKey&language=en-US'),
-      headers: {
-        'Authorization': accessToken,
-      },
+      headers: {'Authorization': accessToken},
     );
 
     if (response.statusCode == 200) {
       final videosJson = jsonDecode(response.body);
-      final videoList = (videosJson['results'] as List)
-          .map((videoJson) => MovieVideo.fromJson(videoJson))
-          .toList();
+      final videoList = (videosJson['results'] as List?)?.map((videoJson) => MovieVideo.fromJson(videoJson)).toList() ?? [];
 
       return videoList;
     } else {

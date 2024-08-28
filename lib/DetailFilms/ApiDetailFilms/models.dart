@@ -1,11 +1,19 @@
-class Cast {
+class People {
   final String name;
+  final String profilePath;
+  final String role;
 
-  Cast({required this.name});
+  People({
+    required this.name,
+    required this.profilePath,
+    required this.role,
+  });
 
-  factory Cast.fromJson(Map<String, dynamic> json) {
-    return Cast(
-      name: json['name'],
+  factory People.fromJson(Map<String, dynamic> json) {
+    return People(
+      name: json['name'] ?? '',  // Berikan default value jika null
+      profilePath: json['profile_path'] ?? '', // Berikan default value jika null
+      role: json['job'] ?? json['character'] ?? '', // Berikan default value jika null
     );
   }
 }
@@ -50,11 +58,9 @@ class MovieDetail {
   final String posterPath;
   final String releaseDate;
   final List<Genre> genres;
-  final List<Cast> producers;
-  final List<Cast> directors;
-  final List<Cast> writers;
   final List<ProductionCompany> productionCompanies;
-  final String backdropPath; // Tambahkan field ini
+  final String backdropPath;
+  final List<People> castCrew;
 
   MovieDetail({
     required this.title,
@@ -62,38 +68,26 @@ class MovieDetail {
     required this.posterPath,
     required this.releaseDate,
     required this.genres,
-    required this.producers,
-    required this.directors,
-    required this.writers,
     required this.productionCompanies,
-    required this.backdropPath, // Tambahkan field ini
+    required this.backdropPath,
+    required this.castCrew,
   });
 
   factory MovieDetail.fromJson(Map<String, dynamic> json) {
     return MovieDetail(
-      title: json['title'],
-      overview: json['overview'],
-      posterPath: json['poster_path'],
-      releaseDate: json['release_date'],
-      genres: (json['genres'] as List)
-          .map((genreJson) => Genre.fromJson(genreJson))
-          .toList(),
-      producers: [],
-      directors: [],
-      writers: [],
-      productionCompanies: (json['production_companies'] as List)
-          .map((companyJson) => ProductionCompany.fromJson(companyJson))
-          .toList(),
-      backdropPath: json['backdrop_path'], // Tambahkan field ini
+      title: json['title'] ?? '',
+      overview: json['overview'] ?? '',
+      posterPath: json['poster_path'] ?? '',
+      releaseDate: json['release_date'] ?? '',
+      genres: (json['genres'] as List?)?.map((genreJson) => Genre.fromJson(genreJson)).toList() ?? [],
+      productionCompanies: (json['production_companies'] as List?)?.map((companyJson) => ProductionCompany.fromJson(companyJson)).toList() ?? [],
+      backdropPath: json['backdrop_path'] ?? '',
+      castCrew: [], // Initial empty list, will be updated by `copyWith`
     );
   }
 
   MovieDetail copyWith({
-    List<Cast>? producers,
-    List<Cast>? directors,
-    List<Cast>? writers,
-    List<ProductionCompany>? productionCompanies,
-    String? backdropPath, // Tambahkan field ini
+    List<People>? castCrew,
   }) {
     return MovieDetail(
       title: this.title,
@@ -101,11 +95,26 @@ class MovieDetail {
       posterPath: this.posterPath,
       releaseDate: this.releaseDate,
       genres: this.genres,
-      producers: producers ?? this.producers,
-      directors: directors ?? this.directors,
-      writers: writers ?? this.writers,
-      productionCompanies: productionCompanies ?? this.productionCompanies,
-      backdropPath: backdropPath ?? this.backdropPath, // Tambahkan field ini
+      productionCompanies: this.productionCompanies,
+      backdropPath: this.backdropPath,
+      castCrew: castCrew ?? this.castCrew,
     );
   }
+
+  List<People> get producers =>
+      castCrew.where((person) => person.role == 'Producer').toList();
+
+  List<People> get directors =>
+      castCrew.where((person) => person.role == 'Director').toList();
+
+  List<People> get writers =>
+      castCrew.where((person) => person.role == 'Writer').toList();
+
+  List<People> get allPeople => castCrew.toList();
+
+  List<People> get crew2 =>
+      castCrew.where((person) => person.role == 'Producer' ||
+          person.role == 'Director' ||
+          person.role == 'Writer' ||
+          person.role != 'Actor').toList();
 }
