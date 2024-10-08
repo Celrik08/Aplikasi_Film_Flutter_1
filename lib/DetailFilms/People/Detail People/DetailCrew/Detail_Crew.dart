@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:latihan_5/DetailFilms/ApiDetailFilms/api_service.dart';
 import 'package:latihan_5/DetailFilms/ApiDetailFilms/models.dart';
-import 'package:latihan_5/DetailFilms/People/card_crew.dart';
+import 'package:latihan_5/DetailFilms/People/Detail%20People/DetailCrew/card_crew.dart';
 
 class DetailCrew extends StatelessWidget {
-  final int movieId;
+  final List<People> allPeople; // Definisikan tipe data yang sesuai
+  final int movieId; // Ensure this parameter is defined
+  final String movieTitle; // Ensure this parameter is defined
 
-  DetailCrew({required this.movieId});
+  DetailCrew({
+    required this.movieId,
+    required this.allPeople,
+    required this.movieTitle,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +52,7 @@ class DetailCrew extends StatelessWidget {
             );
           } else {
             final movieDetail = snapshot.data!;
-            final crew = movieDetail.allPeople;
+            final people = movieDetail.allPeople;
 
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -54,7 +60,7 @@ class DetailCrew extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Text(
-                    'Crew (${crew.length})',
+                    'People (${people.length})',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -68,9 +74,9 @@ class DetailCrew extends StatelessWidget {
                       crossAxisCount: 2,
                       childAspectRatio: 0.7,
                     ),
-                    itemCount: crew.length,
+                    itemCount: people.length,
                     itemBuilder: (context, index) {
-                      return CardCrew(person: crew[index]);
+                      return CardCrew(person: people[index]);
                     },
                   ),
                 ),

@@ -53,4 +53,15 @@ class ApiService {
       throw Exception('Gagal memuat video trailer');
     }
   }
+
+  // Ambil detail orang berdasarkan ID
+  static Future<PersonDetail> fetchPersonDetail(int personId) async {
+    final response = await http.get(Uri.parse('$baseUrl/person/$personId?api_key=$apiKey&language=en-US'));
+
+    if (response.statusCode == 200) {
+      return PersonDetail.fromJson(json.decode(response.body));
+    } else {
+      throw Exception('Failed to load person details');
+    }
+  }
 }

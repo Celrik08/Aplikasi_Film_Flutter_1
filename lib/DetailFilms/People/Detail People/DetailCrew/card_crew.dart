@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:latihan_5/DetailFilms/ApiDetailFilms/models.dart';
 
-
 class CardCrew extends StatelessWidget {
   final People person;
 
@@ -15,6 +14,7 @@ class CardCrew extends StatelessWidget {
       },
       child: Card(
         margin: EdgeInsets.all(3.0),
+        color: Color(0xFF545454),
         child: Stack(
           children: [
             Container(
