@@ -5,6 +5,7 @@ class PersonDetail {
   final String knownFor;
   final String gender;
   final DateTime? birthday;
+  final DateTime? deathday; // Tambahkan deathday
   final String placeOfBirth;
 
   PersonDetail({
@@ -14,6 +15,7 @@ class PersonDetail {
     required this.knownFor,
     required this.gender,
     this.birthday,
+    this.deathday,
     required this.placeOfBirth,
   });
 
@@ -25,6 +27,7 @@ class PersonDetail {
       knownFor: json['known_for_department'] ?? '', // Jika null, isi dengan string kosong
       gender: _genderFromId(json['gender']), // Gunakan method untuk menangani gender null
       birthday: json['birthday'] != null ? DateTime.tryParse(json['birthday']) : null, // Cek null sebelum parse tanggal
+      deathday: json['deathday'] != null ? DateTime.tryParse(json['deathday']) : null,
       placeOfBirth: json['place_of_birth'] ?? '', // Jika null, isi dengan string kosong
     );
   }

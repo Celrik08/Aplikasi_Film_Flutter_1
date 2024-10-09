@@ -4,7 +4,7 @@ import 'package:latihan_5/DetailFilms/ApiDetailFilms/models.dart';
 
 
 class DetailPerson extends StatelessWidget {
-  final Future<PersonDetail> futurePerson; // Change to use Future
+  final Future<PersonDetail> futurePerson;
 
   DetailPerson({required this.futurePerson});
 
@@ -38,10 +38,19 @@ class DetailPerson extends StatelessWidget {
             return Center(child: Text('Failed to load data', style: TextStyle(color: Colors.white)));
           } else if (snapshot.hasData) {
             final person = snapshot.data!;
-            // Jika birthday null, tampilkan '-' dan jangan hitung umur
+
             final birthdayDisplay = person.birthday != null
-                ? '${DateFormat.yMMMMd().format(person.birthday!)} (${_calculateAge(person.birthday!, DateTime.now())} years old)'
+                ? DateFormat.yMMMMd().format(person.birthday!)
                 : '-';
+
+            // Calculate age only if deathday is null
+            final ageDisplay = (person.birthday != null && person.deathday == null)
+                ? ' (${_calculateAge(person.birthday!, DateTime.now())} years old)'
+                : '';
+
+            final deathdayDisplay = person.deathday != null && person.birthday != null
+                ? '${DateFormat.yMMMMd().format(person.deathday!)} (${_calculateAge(person.birthday!, person.deathday!)} years old at death)'
+                : null;
 
             return SingleChildScrollView(
               child: Padding(
@@ -131,9 +140,25 @@ class DetailPerson extends StatelessWidget {
                     ),
                     SizedBox(height: 8),
                     Text(
-                      birthdayDisplay, // Menampilkan tanggal lahir atau '-'
+                      birthdayDisplay + ageDisplay, // Display birthday and age if applicable
                       style: TextStyle(color: Colors.white),
                     ),
+                    if (person.deathday != null) ...[
+                      SizedBox(height: 16),
+                      Text(
+                        'Deathday:',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        deathdayDisplay!,
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ],
                     SizedBox(height: 16),
                     // Place of Birth
                     Text(
@@ -160,14 +185,14 @@ class DetailPerson extends StatelessWidget {
     );
   }
 
-  // Fungsi untuk menghitung usia
+  // Function to calculate age
   int _calculateAge(DateTime birthDate, DateTime currentDate) {
     int age = currentDate.year - birthDate.year;
 
-    // Cek apakah ulang tahun sudah dilewati tahun ini atau belum
+    // Check if birthday has passed this year
     if (currentDate.month < birthDate.month ||
         (currentDate.month == birthDate.month && currentDate.day < birthDate.day)) {
-      age--; // Jika belum ulang tahun, kurangi 1 dari usia
+      age--; // Subtract 1 if birthday hasn't occurred yet this year
     }
 
     return age;

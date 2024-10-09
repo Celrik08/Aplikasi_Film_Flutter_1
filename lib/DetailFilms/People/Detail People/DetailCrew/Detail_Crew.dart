@@ -19,7 +19,7 @@ class DetailCrew extends StatelessWidget {
     return Scaffold(
       backgroundColor: Color(0xFF292929),
       appBar: AppBar(
-        backgroundColor: Colors.black,
+        backgroundColor: Color(0xFF292929),
         iconTheme: IconThemeData(color: Colors.white),
         title: FutureBuilder<MovieDetail>(
           future: ApiService.fetchMovieDetail(movieId),
