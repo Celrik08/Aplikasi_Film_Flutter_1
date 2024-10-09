@@ -40,7 +40,7 @@ class DetailPerson extends StatelessWidget {
             final person = snapshot.data!;
             // Jika birthday null, tampilkan '-' dan jangan hitung umur
             final birthdayDisplay = person.birthday != null
-                ? '${DateFormat.yMMMMd().format(person.birthday!)} (${_calculateAge(person.birthday!)} years old)'
+                ? '${DateFormat.yMMMMd().format(person.birthday!)} (${_calculateAge(person.birthday!, DateTime.now())} years old)'
                 : '-';
 
             return SingleChildScrollView(
@@ -160,12 +160,16 @@ class DetailPerson extends StatelessWidget {
     );
   }
 
-  int _calculateAge(DateTime birthDate) {
-    final now = DateTime.now();
-    int age = now.year - birthDate.year;
-    if (now.month < birthDate.month || (now.month == birthDate.month && now.day < birthDate.day)) {
+  // Fungsi untuk menghitung usia
+  int _calculateAge(DateTime birthDate, DateTime currentDate) {
+    int age = currentDate.year - birthDate.year;
+
+    // Cek apakah ulang tahun dilewati tahun ini atau belum
+    if (currentDate.month < birthDate.month ||
+        (currentDate.month == birthDate.month && currentDate.day < birthDate.day)) {
       age--;
     }
+
     return age;
   }
 }
