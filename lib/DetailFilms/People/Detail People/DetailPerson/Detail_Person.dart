@@ -164,10 +164,10 @@ class DetailPerson extends StatelessWidget {
   int _calculateAge(DateTime birthDate, DateTime currentDate) {
     int age = currentDate.year - birthDate.year;
 
-    // Cek apakah ulang tahun dilewati tahun ini atau belum
+    // Cek apakah ulang tahun sudah dilewati tahun ini atau belum
     if (currentDate.month < birthDate.month ||
         (currentDate.month == birthDate.month && currentDate.day < birthDate.day)) {
-      age--;
+      age--; // Jika belum ulang tahun, kurangi 1 dari usia
     }
 
     return age;
