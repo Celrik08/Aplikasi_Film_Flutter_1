@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:latihan_5/DetailFilms/ApiDetailFilms/models.dart';
 import 'package:latihan_5/DetailFilms/People/DetailPeople/DetailPerson/CardMovie/movie_card.dart';
-import 'package:latihan_5/DetailFilms/detail_film.dart';
 import 'package:latihan_5/DetailFilms/ApiDetailFilms/api_service.dart'; // Make sure to import the ApiService
 
 class DetailPerson extends StatelessWidget {
