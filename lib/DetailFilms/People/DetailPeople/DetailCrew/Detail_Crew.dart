@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:latihan_5/DetailFilms/ApiDetailFilms/api_service.dart';
 import 'package:latihan_5/DetailFilms/ApiDetailFilms/models.dart';
-import 'package:latihan_5/DetailFilms/People/Detail%20People/DetailCrew/card_crew.dart';
+import 'package:latihan_5/DetailFilms/People/DetailPeople/DetailCrew/card_crew.dart';
 
 class DetailCrew extends StatelessWidget {
   final List<People> allPeople; // Definisikan tipe data yang sesuai

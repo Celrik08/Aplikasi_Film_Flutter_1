@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:latihan_5/DetailFilms/ApiDetailFilms/models.dart';
-
+import 'package:latihan_5/DetailFilms/People/DetailPeople/DetailPerson/CardMovie/movie_card.dart';
+import 'package:latihan_5/DetailFilms/detail_film.dart';
+import 'package:latihan_5/DetailFilms/ApiDetailFilms/api_service.dart'; // Make sure to import the ApiService
 
 class DetailPerson extends StatelessWidget {
   final Future<PersonDetail> futurePerson;
+  final int personId; // Declare the personId
 
-  DetailPerson({required this.futurePerson});
+  DetailPerson({required this.futurePerson, required this.personId}); // Add personId to constructor
 
   @override
   Widget build(BuildContext context) {
@@ -39,11 +42,11 @@ class DetailPerson extends StatelessWidget {
           } else if (snapshot.hasData) {
             final person = snapshot.data!;
 
+            // Displaying birthday, age, and deathday as before
             final birthdayDisplay = person.birthday != null
                 ? DateFormat.yMMMMd().format(person.birthday!)
                 : '-';
 
-            // Calculate age only if deathday is null
             final ageDisplay = (person.birthday != null && person.deathday == null)
                 ? ' (${_calculateAge(person.birthday!, DateTime.now())} years old)'
                 : '';
@@ -58,9 +61,9 @@ class DetailPerson extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Displaying person's profile and details as before
                     Row(
                       children: [
-                        // Profile Picture
                         ClipRRect(
                           borderRadius: BorderRadius.circular(8.0),
                           child: Image.network(
@@ -71,7 +74,6 @@ class DetailPerson extends StatelessWidget {
                           ),
                         ),
                         SizedBox(width: 16),
-                        // Name
                         Expanded(
                           child: Text(
                             person.name,
@@ -84,6 +86,7 @@ class DetailPerson extends StatelessWidget {
                         ),
                       ],
                     ),
+
                     SizedBox(height: 16),
                     // Biography
                     Text(
@@ -172,6 +175,43 @@ class DetailPerson extends StatelessWidget {
                     Text(
                       person.placeOfBirth.isNotEmpty ? person.placeOfBirth : '-',
                       style: TextStyle(color: Colors.white),
+                    ),
+                    SizedBox(height: 16),
+                    // Now for the Movies list
+                    Text(
+                      'Role:',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Container(
+                      height: 390, // Adjust the height as necessary
+                      child: FutureBuilder<List<Movie>>(
+                        future: ApiService.fetchMoviesByPerson(personId), // Use personId here
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return Center(child: CircularProgressIndicator());
+                          } else if (snapshot.hasError) {
+                            return Center(child: Text('Error: ${snapshot.error}'));
+                          }
+
+                          final movies = snapshot.data!;
+
+                          return ListView.builder(
+                            scrollDirection: Axis.horizontal, // Enable horizontal scrolling
+                            itemCount: movies.length,
+                            itemBuilder: (context, index) {
+                              return SizedBox(
+                                width: 150, // Set a fixed width for each item
+                                child: MovieCard2(movie: movies[index]),
+                              );
+                            },
+                          );
+                        },
+                      ),
                     ),
                   ],
                 ),

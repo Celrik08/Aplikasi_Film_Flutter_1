@@ -4,7 +4,7 @@ import 'package:latihan_5/DetailFilms/ApiDetailFilms/models.dart';
 import 'package:latihan_5/DetailFilms/VideoTrailer/TrailerYotube.dart';
 import 'package:latihan_5/DetailFilms/VideoTrailer/models.dart';
 import 'package:latihan_5/DetailFilms/People/card_people.dart';
-import 'package:latihan_5/DetailFilms/People/Detail People/DetailCrew/Detail_Crew.dart';
+import 'package:latihan_5/DetailFilms/People/DetailPeople/DetailCrew/Detail_Crew.dart';
 
 class DetailFilm extends StatefulWidget {
   final int movieId;

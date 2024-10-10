@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:latihan_5/DetailFilms/ApiDetailFilms/api_service.dart';
 import 'package:latihan_5/DetailFilms/ApiDetailFilms/models.dart';
-import 'package:latihan_5/DetailFilms/People/Detail%20People/DetailPerson/Detail_Person.dart';
+import 'package:latihan_5/DetailFilms/People/DetailPeople/DetailPerson/Detail_Person.dart';
 
 class CardPeople extends StatelessWidget {
   final People person1;
@@ -18,6 +18,7 @@ class CardPeople extends StatelessWidget {
           MaterialPageRoute(
             builder: (context) => DetailPerson(
               futurePerson: ApiService.fetchPersonDetail(person1.id), // Lewati futurePerson di sini
+              personId: person1.id,
             ),
           ),
         );

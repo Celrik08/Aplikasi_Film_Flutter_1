@@ -7,6 +7,7 @@ class PersonDetail {
   final DateTime? birthday;
   final DateTime? deathday; // Tambahkan deathday
   final String placeOfBirth;
+  final List<Movie> movies;
 
   PersonDetail({
     required this.profilePath,
@@ -17,6 +18,7 @@ class PersonDetail {
     this.birthday,
     this.deathday,
     required this.placeOfBirth,
+    required this.movies,
   });
 
   factory PersonDetail.fromJson(Map<String, dynamic> json) {
@@ -29,6 +31,7 @@ class PersonDetail {
       birthday: json['birthday'] != null ? DateTime.tryParse(json['birthday']) : null, // Cek null sebelum parse tanggal
       deathday: json['deathday'] != null ? DateTime.tryParse(json['deathday']) : null,
       placeOfBirth: json['place_of_birth'] ?? '', // Jika null, isi dengan string kosong
+      movies: (json['movies'] as List<dynamic>?)?.map((movieJson) => Movie.fromJson(movieJson)).toList() ?? [], // Parse movies list
     );
   }
 
@@ -169,4 +172,56 @@ class MovieDetail {
           person.role == 'Director' ||
           person.role == 'Writer' ||
           person.role != 'Actor').toList();
+}
+
+class Dates {
+  final String maximum;
+  final String minimum;
+
+  Dates({
+    required this.maximum,
+    required this.minimum,
+  });
+
+  factory Dates.fromJson(Map<String, dynamic> json) {
+    return Dates(
+      maximum: json['maximum'],
+      minimum: json['minimum'],
+    );
+  }
+}
+
+class Movie {
+  final bool adult;
+  final String backdropPath;
+  final int id;
+  final String originalTitle;
+  final String overview;
+  final String posterPath;
+  final String releaseDate;
+  final String title;
+
+  Movie({
+    required this.adult,
+    required this.backdropPath,
+    required this.id,
+    required this.originalTitle,
+    required this.overview,
+    required this.posterPath,
+    required this.releaseDate,
+    required this.title,
+  });
+
+  factory Movie.fromJson(Map<String, dynamic> json) {
+    return Movie(
+      adult: json['adult'] ?? '',
+      backdropPath: json['backdrop_path'] ?? '',
+      id: json['id'] ?? '',
+      originalTitle: json['original_title'] ?? '',
+      overview: json['overview'] ?? '',
+      posterPath: json['poster_path'] ?? '',
+      releaseDate: json['release_date'] ?? 'Unknown',
+      title: json['title'] ?? 'Untitled',
+    );
+  }
 }

@@ -64,4 +64,22 @@ class ApiService {
       throw Exception('Failed to load person details');
     }
   }
+
+  static Future<List<Movie>> fetchMoviesByPerson(int personId) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/person/$personId/movie_credits?api_key=$apiKey&language=en-US'),
+      headers: {'Authorization': accessToken},
+    );
+
+    if (response.statusCode == 200) {
+      final moviesJson = jsonDecode(response.body);
+      final List<Movie> movies = (moviesJson['cast'] as List)
+          .map((movieJson) => Movie.fromJson(movieJson))
+          .toList();
+
+      return movies;
+    } else {
+      throw Exception('Failed to load movies for the person');
+    }
+  }
 }
