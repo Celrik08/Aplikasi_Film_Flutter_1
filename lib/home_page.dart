@@ -39,7 +39,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(kToolbarHeight + 20), // Tinggi yang diinginkan untuk AppBar
+        preferredSize: Size.fromHeight(kToolbarHeight + 18), // Tinggi yang diinginkan untuk AppBar
         child: AppBar(
           backgroundColor: Color(0xFF292929), // Mengatur warna AppBar menjadi hitam
           title: Row(
