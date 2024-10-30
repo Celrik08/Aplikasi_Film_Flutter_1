@@ -6,14 +6,19 @@ import 'package:firebase_core/firebase_core.dart'; // Import Firebase Core
 import 'package:latihan_5/Notifikasi/notification_service.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'home_page.dart';
-
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 // Define navigatorKey globally so it can be accessed from NotificationService
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(); // Initialize Firebase
+
+  // Initialize Firebase with options for the current platform
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   // Initialize Firestore
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -40,15 +45,16 @@ void main() async {
   );
 
   // Memulai layanan latar belakang dengan instance NotificationService
-  BackgroundService.start(); // Memanggil start tanpa argumen
+  BackgroundService.start();
 
-  runApp(MyApp(notificationService: notificationService)); // Pass notificationService to MyApp
+  // Run the app with NotificationService passed to MyApp
+  runApp(MyApp(notificationService: notificationService));
 }
 
 class MyApp extends StatelessWidget {
   final NotificationService notificationService;
 
-  MyApp({required this.notificationService}); // Constructor dengan required NotificationService
+  MyApp({required this.notificationService});
 
   @override
   Widget build(BuildContext context) {
