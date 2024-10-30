@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "789363234804",
+    "project_id": "aplikasi-film-flutter-934f7",
+    "storage_bucket": "aplikasi-film-flutter-934f7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:789363234804:android:f3868028c8e1b98ac30ba1",
+        "android_client_info": {
+          "package_name": "com.fajar.latihan5.latihan_5"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDDhteGJvajwtXvuxmicyBwhVZ8IHcLIeY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
