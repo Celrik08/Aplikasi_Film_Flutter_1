@@ -1,8 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:latihan_5/Notifikasi/ApiNotifikasi/api_service.dart';
 import 'package:latihan_5/Notifikasi/ApiNotifikasi/models.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class NotificationService {
   final ApiService1 apiService;
@@ -10,67 +12,27 @@ class NotificationService {
 
   NotificationService({required this.apiService, required this.firestore});
 
-  // Inisialisasi notifikasi
+  // Inisialisasi Firebase Messaging untuk subskripsi topik dan penerimaan pesan
   void initializeNotifications() {
-    AwesomeNotifications().initialize('resource://drawable/res_app_icon', [
-      NotificationChannel(
-        channelKey: 'movie_updates_channel',
-        channelName: 'Movie Updates',
-        channelDescription: 'Notifications for movie updates',
-        defaultColor: Color(0xFF9D50DD),
-        ledColor: Colors.white,
-        importance: NotificationImportance.High,
-      )
-    ]);
+    FirebaseMessaging.instance.subscribeToTopic("movie_updates");
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      if (message.notification != null) {
+        _showLocalNotification(
+          message.notification!.title ?? '',
+          message.notification!.body ?? '',
+        );
+      }
+    });
   }
 
-  Future<void> checkForMovieUpdates() async {
-    await checkAndNotifyUpcomingMovies();
-    await checkAndNotifyNowPlayingMovies();
-  }
-
-  Future<void> checkAndNotifyUpcomingMovies() async {
-    List<Movie> upcomingMovies = await ApiService1.getUpcomingMovies();
-    for (var movie in upcomingMovies) {
-      await _checkAndNotify(movie, 'upcoming');
-    }
-  }
-
-  Future<void> checkAndNotifyNowPlayingMovies() async {
-    List<Movie> nowPlayingMovies = await ApiService1.getNowPlayingMovies();
-    for (var movie in nowPlayingMovies) {
-      await _checkAndNotify(movie, 'now_playing');
-    }
-  }
-
-  Future<void> _checkAndNotify(Movie movie, String type) async {
-    bool notified = await _isMovieNotified(movie.id, type);
-    bool isNowPlaying = type == 'now_playing';
-
-    if (!notified && isNowPlaying) {
-      await showNotification(movie.title);
-      await _markMovieAsNotified(movie.id, type);
-    } else if (!notified && !isNowPlaying) {
-      await _markMovieAsNotified(movie.id, type);
-    }
-  }
-
-  Future<bool> _isMovieNotified(int movieId, String type) async {
-    DocumentSnapshot doc = await firestore.collection(type).doc(movieId.toString()).get();
-    return doc.exists;
-  }
-
-  Future<void> _markMovieAsNotified(int movieId, String type) async {
-    await firestore.collection(type).doc(movieId.toString()).set({'notified': true});
-  }
-
-  Future<void> showNotification(String title) async {
-    await AwesomeNotifications().createNotification(
+  // Fungsi untuk menampilkan notifikasi lokal menggunakan Awesome Notifications
+  void _showLocalNotification(String title, String body) {
+    AwesomeNotifications().createNotification(
       content: NotificationContent(
-        id: 10,
-        channelKey: 'movie_updates_channel',
-        title: 'Film ${title} telah tayang di bioskop terdekat!',
-        body: 'Ayo saksikan segera film yang Anda tunggu-tunggu!',
+        id: DateTime.now().millisecondsSinceEpoch.remainder(100000),
+        channelKey: 'movie_channel',
+        title: title,
+        body: body,
         notificationLayout: NotificationLayout.Default,
       ),
       actionButtons: [
@@ -81,5 +43,65 @@ class NotificationService {
         ),
       ],
     );
+  }
+
+  // Memeriksa pembaruan film dari TMDB secara real-time
+  Future<void> checkForMovieUpdates() async {
+    await _checkAndNotifyMovies('upcoming');
+    await _checkAndNotifyMovies('now_playing');
+  }
+
+  // Fungsi umum untuk memeriksa dan notifikasi jika film berubah status
+  Future<void> _checkAndNotifyMovies(String type) async {
+    List<Movie> movies = (type == 'upcoming')
+        ? await ApiService1.getUpcomingMovies()
+        : await ApiService1.getNowPlayingMovies();
+
+    for (var movie in movies) {
+      bool notified = await _isMovieNotified(movie.id, type);
+      if (!notified && type == 'now_playing') {
+        await _sendNotificationToFirebase(
+          'Film ${movie.title} telah tayang di bioskop terdekat!',
+          'Ayo saksikan segera film yang Anda tunggu-tunggu!',
+        );
+        _showLocalNotification(
+          'Film ${movie.title} telah tayang di bioskop terdekat!',
+          'Ayo saksikan segera film yang Anda tunggu-tunggu!',
+        );
+        await _markMovieAsNotified(movie.id, type);
+      }
+    }
+  }
+
+  // Fungsi untuk mengirimkan notifikasi ke Firebase Messaging
+  Future<void> _sendNotificationToFirebase(String title, String body) async {
+    final response = await http.post(
+      Uri.parse(ApiService1.fcmUrl),
+      headers: {
+        'Authorization': 'key=${ApiService1.fcmServerKey}',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        "to": "/topics/movie_updates",
+        "notification": {
+          "title": title,
+          "body": body,
+        },
+      }),
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to send notification to Firebase Messaging');
+    }
+  }
+
+  // Cek apakah notifikasi sudah diberitahukan
+  Future<bool> _isMovieNotified(int movieId, String type) async {
+    DocumentSnapshot doc = await firestore.collection(type).doc(movieId.toString()).get();
+    return doc.exists;
+  }
+
+  // Tandai film sebagai diberitahukan di Firebase Firestore
+  Future<void> _markMovieAsNotified(int movieId, String type) async {
+    await firestore.collection(type).doc(movieId.toString()).set({'notified': true});
   }
 }

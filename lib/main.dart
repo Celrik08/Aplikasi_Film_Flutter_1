@@ -6,49 +6,35 @@ import 'package:firebase_core/firebase_core.dart'; // Import Firebase Core
 import 'package:latihan_5/Notifikasi/notification_service.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'home_page.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
-
-// Define navigatorKey globally so it can be accessed from NotificationService
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
 
-  // Initialize Firebase with options for the current platform
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
+  AwesomeNotifications().initialize(
+    null,
+    [
+      NotificationChannel(
+        channelKey: 'movie_channel',
+        channelName: 'Movie Notifications',
+        channelDescription: 'Notification channel for movie updates',
+        defaultColor: Colors.blue,
+        ledColor: Colors.white,
+      ),
+    ],
   );
 
-  // Initialize Firestore
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
+  final ApiService1 apiService = ApiService1();
 
-  // Inisialisasi ApiService dari file yang benar
-  final ApiService1 apiService = ApiService1(); // Pastikan ini sesuai dengan NotificationService
-
-  // Inisialisasi notifikasi
-  AwesomeNotifications().initialize('resource_key', [
-    NotificationChannel(
-      channelKey: 'movie_updates_channel',
-      channelName: 'Movie Updates',
-      channelDescription: 'Notification channel for movie updates',
-      defaultColor: Color(0xFF9D50DD),
-      ledColor: Colors.white,
-      importance: NotificationImportance.High,
-    ),
-  ]);
-
-  // Membuat instance dari NotificationService dengan argumen yang diperlukan
-  final NotificationService notificationService = NotificationService(
-    apiService: apiService,
-    firestore: firestore,
-  );
-
-  // Memulai layanan latar belakang dengan instance NotificationService
   BackgroundService.start();
 
-  // Run the app with NotificationService passed to MyApp
-  runApp(MyApp(notificationService: notificationService));
+  runApp(MyApp(
+    notificationService: NotificationService(
+      apiService: apiService,
+      firestore: firestore,
+    ),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -59,13 +45,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     notificationService.initializeNotifications();
-
     return MaterialApp(
       title: 'Flutter Movie App',
-      navigatorKey: navigatorKey,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: ThemeData(primarySwatch: Colors.blue),
       debugShowCheckedModeBanner: false,
       home: HomePage(),
     );
