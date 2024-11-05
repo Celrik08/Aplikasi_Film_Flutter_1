@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:latihan_5/DetailFilms/ApiDetailFilms/models.dart';
+import 'package:latihan_5/ImageNull/ImageNull.dart';
 
 class CardCrew extends StatelessWidget {
   final People person;
@@ -20,10 +21,12 @@ class CardCrew extends StatelessWidget {
             Container(
               width: double.infinity,
               height: 259,
-              child: Image.network(
+              child: (person.profilePath != null && person.profilePath!.isNotEmpty)
+                  ? Image.network(
                 'http://image.tmdb.org/t/p/w500/${person.profilePath}',
                 fit: BoxFit.cover,
-              ),
+              )
+                  : Imagenull(), // Memanggil class ImageNull jika profilePath null atau kosong
             ),
             Positioned(
               bottom: 0,
