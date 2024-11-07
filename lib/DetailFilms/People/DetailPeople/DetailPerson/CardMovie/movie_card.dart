@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:latihan_5/DetailFilms/detail_film.dart';
 import 'package:latihan_5/DetailFilms/ApiDetailFilms/models.dart';
+import 'package:latihan_5/Image/MovieNull/MovieNull.dart';
 
 class MovieCard2 extends StatelessWidget {
   final Movie movie;
@@ -27,10 +28,12 @@ class MovieCard2 extends StatelessWidget {
             Container(
               width: double.infinity,
               height: 250,
-              child: Image.network(
-                'http://image.tmdb.org/t/p/w500/${movie.posterPath}',
-                fit: BoxFit.cover,
-              ),
+              child: (movie.posterPath != null && movie.posterPath!.isNotEmpty)
+                  ? Image.network(
+                      'http://image.tmdb.org/t/p/w500/${movie.posterPath}',
+                      fit: BoxFit.cover,
+                    )
+                  : MovieNull(), // If posterPath is null, show MovieNull widget
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
@@ -41,6 +44,8 @@ class MovieCard2 extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
+                maxLines: 2, // Mmebatasi teks hanya satu baris
+                overflow: TextOverflow.ellipsis, // Menambahkan titik tiga jika teks kepanjangan
               ),
             ),
           ],

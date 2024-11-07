@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:latihan_5/DetailFilms/detail_film.dart';
 import 'models.dart';
+import 'package:latihan_5/Image/MovieNull/MovieNull.dart';
 
 class MovieCard extends StatelessWidget {
   final Movie movie;
@@ -26,10 +27,12 @@ class MovieCard extends StatelessWidget {
             Container(
               width: double.infinity,
               height: 500,
-              child: Image.network(
-                'http://image.tmdb.org/t/p/w500/${movie.posterPath}',
-                fit: BoxFit.cover,
-              ),
+              child: (movie.posterPath != null && movie.posterPath!.isNotEmpty)
+                  ? Image.network(
+                      'http://image.tmdb.org/t/p/w500/${movie.posterPath}',
+                      fit: BoxFit.cover,
+                    )
+                  : MovieNull(), // If posterPath is null, show MovieNull
             ),
             Positioned(
               bottom: 0,

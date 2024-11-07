@@ -5,6 +5,8 @@ import 'package:latihan_5/DetailFilms/VideoTrailer/TrailerYotube.dart';
 import 'package:latihan_5/DetailFilms/VideoTrailer/models.dart';
 import 'package:latihan_5/DetailFilms/People/card_people.dart';
 import 'package:latihan_5/DetailFilms/People/DetailPeople/DetailCrew/Detail_Crew.dart';
+import 'package:latihan_5/Image/TrailerNull/TrailerNull.dart';
+import 'package:latihan_5/Image/MovieNull/MovieNull.dart';
 
 class DetailFilm extends StatefulWidget {
   final int movieId;
@@ -88,30 +90,38 @@ class _DetailFilmState extends State<DetailFilm> {
                       if (videoSnapshot.connectionState == ConnectionState.waiting) {
                         return CircularProgressIndicator();
                       } else if (videoSnapshot.hasError || !videoSnapshot.hasData || videoSnapshot.data!.isEmpty) {
-                        return Container();
+                        return TrailerNull();
                       } else {
                         final videoKey = videoSnapshot.data!.first.key;
+                        // Kondisi jika backdropPath dan posterPath tidak null atau kosong
+                        final hasBackdrop = movie.backdropPath != null && movie.backdropPath!.isNotEmpty;
+
                         return GestureDetector(
-                          onTap: () {
-                            _showTrailerDialog(videoKey);
-                          },
+                          onTap: hasBackdrop
+                              ? () {
+                                  _showTrailerDialog(videoKey);
+                                }
+                              : null, // Tidak dapat ditekan jika backdropPath atau posterPath null atau kosong
                           child: Stack(
                             children: [
-                              Image.network(
-                                'https://image.tmdb.org/t/p/w500${movie.backdropPath}',
-                                fit: BoxFit.cover,
-                                width: double.infinity,
-                                height: 250,
-                              ),
-                              Positioned.fill(
-                                child: Center(
-                                  child: Icon(
-                                    Icons.play_circle_outline,
-                                    size: 50,
-                                    color: Colors.white,
+                              hasBackdrop
+                                  ? Image.network(
+                                      'https://image.tmdb.org/t/p/w500${movie.backdropPath}',
+                                      fit: BoxFit.cover,
+                                      width: double.infinity,
+                                      height: 250,
+                                    )
+                                  : TrailerNull(), // Jika backdropPath atau posterPath null, tampilkan TrailerNull
+                              if (hasBackdrop) // Tampilkan icon hanya jika backdropPath dan posterPath ada
+                                Positioned.fill(
+                                  child: Center(
+                                    child: Icon(
+                                      Icons.play_circle_outline,
+                                      size: 50,
+                                      color: Colors.white,
+                                    ),
                                   ),
                                 ),
-                              ),
                             ],
                           ),
                         );
@@ -126,12 +136,14 @@ class _DetailFilmState extends State<DetailFilm> {
                       children: [
                         ClipRRect(
                           borderRadius: BorderRadius.circular(8.0),
-                          child: Image.network(
-                            'https://image.tmdb.org/t/p/w500${movie.posterPath}',
-                            width: 100,
-                            height: 150,
-                            fit: BoxFit.cover,
-                          ),
+                          child: (movie.posterPath != null && movie.posterPath!.isNotEmpty)
+                              ? Image.network(
+                                  'https://image.tmdb.org/t/p/w500${movie.posterPath}',
+                                  width: 100,
+                                  height: 150,
+                                  fit: BoxFit.cover,
+                                )
+                              : MovieNull(), // If posterPath is null, show MovieNull
                         ),
                         SizedBox(width: 16),
                         Expanded(

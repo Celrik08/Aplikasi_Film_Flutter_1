@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:latihan_5/DetailFilms/ApiDetailFilms/models.dart';
-import 'package:latihan_5/ImageNull/ImageNull.dart';
+import 'package:latihan_5/Image/PersonNull/PersonNull.dart';
+import 'package:latihan_5/DetailFilms/People/DetailPeople/DetailPerson/Detail_Person.dart';
+import 'package:latihan_5/DetailFilms/ApiDetailFilms/api_service.dart';
 
 class CardCrew extends StatelessWidget {
   final People person;
@@ -11,7 +13,16 @@ class CardCrew extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // Add functionality if needed when the card is tapped.
+        // Navigasikan ke layar DetailPerson dengan futurePerson
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DetailPerson(
+              futurePerson: ApiService.fetchPersonDetail(person.id), // Lewati futuruPerson di sin
+              personId: person.id,
+            ),
+          ),
+        );
       },
       child: Card(
         margin: EdgeInsets.all(3.0),
@@ -20,13 +31,13 @@ class CardCrew extends StatelessWidget {
           children: [
             Container(
               width: double.infinity,
-              height: 259,
+              height: 267,
               child: (person.profilePath != null && person.profilePath!.isNotEmpty)
                   ? Image.network(
-                'http://image.tmdb.org/t/p/w500/${person.profilePath}',
-                fit: BoxFit.cover,
-              )
-                  : Imagenull(), // Memanggil class ImageNull jika profilePath null atau kosong
+                      'http://image.tmdb.org/t/p/w500/${person.profilePath}',
+                      fit: BoxFit.cover,
+                    )
+                  : PersonNull(), // Memanggil class ImageNull jika profilePath null atau kosong
             ),
             Positioned(
               bottom: 0,

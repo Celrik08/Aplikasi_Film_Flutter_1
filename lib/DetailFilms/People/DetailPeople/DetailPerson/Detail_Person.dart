@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:latihan_5/DetailFilms/ApiDetailFilms/models.dart';
 import 'package:latihan_5/DetailFilms/People/DetailPeople/DetailPerson/CardMovie/movie_card.dart';
 import 'package:latihan_5/DetailFilms/ApiDetailFilms/api_service.dart'; // Make sure to import the ApiService
+import 'package:latihan_5/Image/PersonNull/PersonNull.dart';
 
 class DetailPerson extends StatelessWidget {
   final Future<PersonDetail> futurePerson;
@@ -65,12 +66,14 @@ class DetailPerson extends StatelessWidget {
                       children: [
                         ClipRRect(
                           borderRadius: BorderRadius.circular(8.0),
-                          child: Image.network(
-                            'https://image.tmdb.org/t/p/w500${person.profilePath}',
-                            width: 100,
-                            height: 150,
-                            fit: BoxFit.cover,
-                          ),
+                          child: (person.profilePath != null && person.profilePath!.isNotEmpty)
+                              ? Image.network(
+                                  'https://image.tmdb.org/t/p/w500${person.profilePath}',
+                                  width: 100,
+                                  height: 150,
+                                  fit: BoxFit.cover,
+                                )
+                              : PersonNull(),
                         ),
                         SizedBox(width: 16),
                         Expanded(
@@ -187,7 +190,7 @@ class DetailPerson extends StatelessWidget {
                     ),
                     SizedBox(height: 8),
                     Container(
-                      height: 390, // Adjust the height as necessary
+                      height: 350, // Adjust the height as necessary
                       child: FutureBuilder<List<Movie>>(
                         future: ApiService.fetchMoviesByPerson(personId), // Use personId here
                         builder: (context, snapshot) {

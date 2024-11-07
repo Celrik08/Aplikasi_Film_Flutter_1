@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:latihan_5/DetailFilms/ApiDetailFilms/api_service.dart';
 import 'package:latihan_5/DetailFilms/ApiDetailFilms/models.dart';
 import 'package:latihan_5/DetailFilms/People/DetailPeople/DetailPerson/Detail_Person.dart';
+import 'package:latihan_5/Image/PersonNull/PersonNull.dart';
 
 class CardPeople extends StatelessWidget {
   final People person1;
@@ -34,10 +35,12 @@ class CardPeople extends StatelessWidget {
               Container(
                 width: 144, // Mengatur lebar gambar mengikuti lebar Card
                 height: 150,
-                child: Image.network(
+                child: (person1.profilePath != null && person1.profilePath!.isNotEmpty)
+              ? Image.network(
                   'http://image.tmdb.org/t/p/w500/${person1.profilePath}',
                   fit: BoxFit.cover,
-                ),
+                )
+              : PersonNull(), // Memanggil class ImageNull jika profilePath null atau kosong
               ),
               SizedBox(height: 8),
               Center(
