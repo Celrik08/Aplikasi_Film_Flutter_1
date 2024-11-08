@@ -1,17 +1,3 @@
-class Dates {
-  final String maximum;
-  final String minimum;
-
-  Dates ({required this.maximum, required this.minimum});
-
-  factory Dates.fromJson(Map<String, dynamic> json) {
-    return Dates(
-      maximum: json['maximum'] ?? '',  // Default to an empty string if null
-      minimum: json['minimum'] ?? '',  // Default to an empty string if null
-    );
-  }
-}
-
 class Movie {
   final bool adult;
   final String backdropPath;
@@ -65,24 +51,21 @@ class Movie {
   }
 }
 
-class NowPlayingResponse {
-  final Dates dates;
+class PopularResponse {
   final int page;
   final List<Movie> results;
   final int totalPages;
   final int totalResults;
 
-  NowPlayingResponse({
-    required this.dates,
+  PopularResponse({
     required this.page,
     required this.results,
     required this.totalPages,
     required this.totalResults,
   });
 
-  factory NowPlayingResponse.fromJson(Map<String, dynamic> json) {
-    return NowPlayingResponse(
-      dates: Dates.fromJson(json['dates']),
+  factory PopularResponse.fromJson(Map<String, dynamic> json) {
+    return PopularResponse(
       page: json['page'] ?? 0,  // Default to 0 if null
       results: (json['results'] as List?)?.map((x) => Movie.fromJson(x)).toList() ?? [],  // Default to empty list if null
       totalPages: json['total_pages'] ?? 0,  // Default to 0 if null
