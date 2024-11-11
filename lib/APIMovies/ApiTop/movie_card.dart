@@ -29,9 +29,9 @@ class MovieCard extends StatelessWidget {
               height: 500,
               child: (movie.posterPath != null && movie.posterPath.isNotEmpty)
                   ? Image.network(
-                      'http://image.tmdb.org/t/p/w500/${movie.posterPath}',
-                      fit: BoxFit.cover,
-                    )
+                'http://image.tmdb.org/t/p/w500/${movie.posterPath}',
+                fit: BoxFit.cover,
+              )
                   : MovieNull(), // If posterPath is null, show MovieNull
             ),
             Positioned(
