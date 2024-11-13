@@ -6,10 +6,14 @@ import 'package:firebase_core/firebase_core.dart'; // Import Firebase Core
 import 'package:latihan_5/Notifikasi/notification_service.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'home_page.dart';
+import 'package:flutter/services.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
+  // Membatasi orientasi layar ke portrait saja
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
 
   AwesomeNotifications().initialize(
     null,
